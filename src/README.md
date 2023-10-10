@@ -1,21 +1,21 @@
-CS2 Loadouts Generator
+CS:GO Binds Generator
 =========
 
-CS2 Loadouts Generator is an online tool that helps you to create your binds on CS2 easily.
+CS:Go Binds Generator is an online tool that helps you to create your binds on CS:GO easily.
 
-  - Select the loadout you want
   - Choose the key you want to bind
-  - Copy and paste the generated code in your console/autoexec.cfg or use the autoexec.cfg generator
+  - Select the loadout you want
+  - Copy and paste the generated code in your console/autoexec.cfg
 
 Version
 ----
 
-1.0
+0.9
 
 Give it a try
 -----------
 
-[CS2 Loadouts Generator](http://cs2loadouts.com) - This project is hosted on a dedicated website !
+[CS:GO Binds Generator](http://csgobindsgenerator.com) - This project is hosted on a dedicated website !
 
 What's planed
 -----------
@@ -37,9 +37,12 @@ These are the known and working browsers
 
 Tools used
 ----------
-* ReactJS
 * HTML5
 * [Sass](http://sass-lang.com/)
 * JS
 * [Coffee](http://coffeescript.org/)
-* [Bun](https://bun.sh/)
+
+License
+----
+
+GPL v2
