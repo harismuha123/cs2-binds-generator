@@ -1,7 +1,368 @@
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
+const App = () => {
+
+  const [radioList, setRadioList] = useState(["primaryradio", "secondary", "grenade", "other"]);
+  const [currentKey, setCurrentKey] = useState({});
+  const [BGCUSEDKEY, setBGCUSEDKEY] = useState("#16a085");
+  const [defaultBgColor, setDefaultBgColor] = useState("");
+
+  useEffect(() => {
+    var ItemKey, KeyList;
+
+    KeyList = [];
+  
+    KeyList.contains = function(ref) {
+      var x;
+      x = 0;
+      while (x < KeyList.length) {
+        if (KeyList[x].ref === ref) {
+          return true;
+        } else {
+          x++;
+        }
+      }
+      return false;
+    };
+  
+    KeyList.list = function() {
+      var y, _results;
+      y = 0;
+      _results = [];
+      while (y < KeyList.length) {
+        console.log(KeyList[y]);
+        _results.push(y++);
+      }
+      return _results;
+    };
+  
+    KeyList.get = function(ref) {
+      var x;
+      x = 0;
+      while (x < KeyList.length) {
+        if (KeyList[x].ref === ref) {
+          return KeyList[x];
+        } else {
+          x++;
+        }
+      }
+    };
+  
+    KeyList.removeKey = function(ref) {
+      var y, _results;
+      y = KeyList.length;
+      _results = [];
+      while (y--) {
+        if (KeyList[y] === ref) {
+          _results.push(KeyList.splice(y, 1));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+  
+    ItemKey = (function() {
+      function ItemKey(ref, selected, primary, secondary, grenade, other, custom, itemsRef) {
+        this.ref = ref;
+        this.selected = selected != null ? selected : false;
+        this.primary = primary != null ? primary : "";
+        this.secondary = secondary != null ? secondary : "";
+        this.grenade = grenade != null ? grenade : [];
+        this.other = other != null ? other : [];
+        this.custom = custom != null ? custom : "";
+        this.itemsRef = itemsRef != null ? itemsRef : [];
+        if (!KeyList.contains(ref)) {
+          KeyList.push(this);
+        }
+      }
+  
+      ItemKey.prototype.getValue = function() {
+        if (this.ref.firstElementChild) {
+          return this.ref.firstElementChild.innerHTML;
+        } else {
+          return this.ref.innerHTML;
+        }
+      };
+  
+      ItemKey.prototype.getString = function() {
+        var g, grenadeS, o, otherS, _i, _j, _len, _len1, _ref, _ref1;
+        grenadeS = "";
+        otherS = "";
+        if (this.grenade.length > 0) {
+          _ref = this.grenade;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            g = _ref[_i];
+            grenadeS += " " + g.value;
+          }
+        }
+        if (this.other.length > 0) {
+          _ref1 = this.other;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            o = _ref1[_j];
+            otherS += " " + o.value;
+          }
+        }
+        if (this.primary + this.secondary + grenadeS + otherS + this.custom !== "") {
+          return "bind " + "\"" + this.getValue() + "\" \"" + this.primary + this.secondary + grenadeS + otherS + this.custom + "\"&#10;";
+        } else {
+          return false;
+        }
+      };
+  
+      ItemKey.prototype.containsArr = function(arr, ref) {
+        var x;
+        x = 0;
+        while (x < arr.length) {
+          if (arr[x].id === ref.id) {
+            return true;
+          } else {
+            x++;
+          }
+        }
+        return false;
+      };
+  
+      ItemKey.prototype.addInArray = function(arr, ref) {
+        var y, _results;
+        if (!this.containsArr(arr, ref)) {
+          return arr.push(ref);
+        } else {
+          y = arr.length;
+          _results = [];
+          while (y--) {
+            if (arr[y] === ref) {
+              _results.push(arr.splice(y, 1));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        }
+      };
+  
+      ItemKey.prototype.focus = function() {
+        var x;
+        console.log("focus");
+        x = 0;
+        while (x < KeyList.length) {
+          console.log(KeyList[x]);
+          KeyList[x].ref.classList.remove("focus");
+          x++;
+        }
+        return this.ref.classList.add("focus");
+      };
+  
+      return ItemKey;
+  
+    })();
+  
+    window.ItemKey = ItemKey;
+  
+    window.KeyList = KeyList;
+
+    var selectedkey = document.getElementById("selectedkey");
+    var keys = document.querySelectorAll(".keyboard table tbody tr td");
+    var textArea = document.getElementById("text-result");
+	  var customText = document.getElementById("customTextArea");
+    // window.defaultBgColor = keys[0].style.backgroundColor;
+
+    function selectKey(key) {
+        selectedkey.innerText = key.getValue();
+        deselectAllKey();
+        deselectAllWep();
+		    loadCurrentKey();
+        key.ref.style.backgroundColor = "darkgreen";
+    }
+
+    function selectWep(wep) {
+        if (typeof currentKey.primary === "undefined")
+            return false;
+        switch (wep.name) {
+            case "primaryradio":
+                currentKey.itemsRef["primary"] = wep;
+                currentKey.primary = wep.value;
+                update();
+                break;
+            case "secondary":
+                currentKey.itemsRef["secondary"] = wep;
+                currentKey.secondary = wep.value;
+                update();
+                break;
+            case "grenade":
+                currentKey.addInArray(currentKey.grenade, wep);
+                update();
+                break;
+            case "other":
+                currentKey.addInArray(currentKey.other, wep);
+                update();
+                break;
+        }
+    }
+
+    function showUsedKey() {
+        for (var i = 0; i < KeyList.length; i++) {
+            if (KeyList[i].getString() != false) {
+                KeyList[i].ref.style.backgroundColor = BGCUSEDKEY;
+            }
+        }
+    }
+
+    function deselectAllKey() {
+        for (var key = 0; key < keys.length; key++) {
+            keys[key].s = false;
+            keys[key].style.backgroundColor = defaultBgColor;
+        }
+        showUsedKey()
+    }
+
+    function deselectAllWep() {
+        for (var radio in radioList) {
+            var ele = document.getElementsByName(radioList[radio]);
+            for (var i = 0; i < ele.length; i++)
+                ele[i].checked = false;
+        }
+		customText.value = '';
+    }
+
+	function loadCurrentKey() {
+		if (currentKey.itemsRef != undefined) {
+			if (currentKey.itemsRef["primary"] != undefined)
+				currentKey.itemsRef["primary"].checked = true;
+			if (currentKey.itemsRef["secondary"] != undefined)
+				currentKey.itemsRef["secondary"].checked = true;
+		}
+		if (currentKey.grenade != undefined) {
+			for (var g in currentKey.grenade) {
+				currentKey.grenade[g].checked = true;
+			}
+		}
+		if (currentKey.other != undefined) {
+			for (var o in currentKey.other) {
+				currentKey.other[o].checked = true;
+			}
+		}
+		if (currentKey.custom != undefined) {
+			customText.value = currentKey.custom;
+		}
+	}
+
+    function update() {
+        textArea.innerHTML = "";
+        for (var i = 0; i < KeyList.length; i++) {
+            if (KeyList[i].getString() != false)
+                textArea.innerHTML += KeyList[i].getString();
+        }
+    }
+
+//Keys
+    for (var key = 0; key < keys.length; key++) {
+        if (keys[key].className != "empty") {
+            keys[key].addEventListener('click', function () {
+                if (KeyList.contains(this)) {
+                    currentKey = KeyList.get(this);
+                }
+                else {
+                    currentKey = new ItemKey(this, true);
+                }
+                //console.log("------------------------------------------------");
+                //KeyList.list();
+                selectKey(currentKey);
+            })
+        }
+    }
+//Weapons
+    var wep;
+    for (var list in radioList) {
+        var allRadios = document.getElementsByName(radioList[list]);
+        for (var x = 0; x < allRadios.length; x++) {
+            allRadios[x].addEventListener('click', function () {
+                selectWep(this);
+            })
+        }
+    }
+
+    function reset() {
+        currentKey = {};
+        textArea.innerHTML = "";
+		customText.value = "";
+        KeyList.length = 0;
+        selectedkey.innerText = "";
+        deselectAllKey();
+        deselectAllWep();
+    }
+
+    function resetKey(key) {
+        currentKey = {};
+        KeyList.removeKey(key);
+        selectedkey.innerText = "";
+		customText.value = "";
+        update();
+        deselectAllWep();
+        deselectAllKey();
+    }
+
+    document.getElementById("resetkey").addEventListener('click', function () {
+        resetKey(currentKey)
+    });
+
+    document.getElementById("reset").addEventListener('click', function () {
+        reset();
+    });
+
+    document.getElementById("copy").addEventListener('click', function () {
+        textArea.select();
+    });
+
+	customText.addEventListener("keyup", function () {
+		currentKey.custom = customText.value;
+		update();
+		//TODO Reset et rechargement lors du changement de touche
+	});
+
+    function toggleDisplay(div) {
+        if (div.style.display != "none") {
+            div.style.display = "none";
+        }
+        else {
+            div.style.display = "block";
+        }
+    }
+
+    document.getElementById("disrifle").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("rifles"));
+        e.preventDefault();
+        return false;
+    });
+    document.getElementById("dissmg").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("smgs"));
+        e.preventDefault();
+        return false;
+    });
+    document.getElementById("disheavy").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("heavy"));
+        e.preventDefault();
+        return false;
+    });
+    document.getElementById("dissecondary").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("gun"));
+        e.preventDefault();
+        return false;
+    });
+    document.getElementById("disgre").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("grenades"));
+        e.preventDefault();
+        return false;
+    });
+    document.getElementById("disother").addEventListener('click', function (e) {
+        toggleDisplay(document.getElementById("equipment"));
+        e.preventDefault();
+        return false;
+    });
+  }, []);
+
   return (
     <div className="App">
       <header>
