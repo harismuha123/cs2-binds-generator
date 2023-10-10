@@ -248,7 +248,7 @@ function App() {
                 <li>
                   <input id="famas" type="radio" name='primaryradio' value="buy famas; buy galilar;" />
                   <label for="famas">
-                    <img src="img/weapons/weapon_famas.png" alt="Famas" />
+                    <img src="./img/weapons/weapon_famas.png" alt="Famas" />
                   </label>
                 </li>
                 <li>
